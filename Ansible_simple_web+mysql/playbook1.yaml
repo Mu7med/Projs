@@ -1,0 +1,65 @@
+---
+- name: Setup WebServer
+  hosts: web1
+  become: yes
+  tasks:
+  #============================= Setup Webserver =============================
+    - name: Install Apache httpd 
+      dnf:
+         name: 
+            - httpd
+            - wget
+            - unzip
+         state: present
+         
+    - name: Start & Enable HTTPD
+      service:
+        name: httpd
+        state: started
+        enabled: yes
+
+    - name: extract 2129_crispy_kitchen
+      unarchive:
+        validate_certs: False
+        src: https://www.tooplate.com/zip-templates/2129_crispy_kitchen.zip
+        dest: /opt/
+        remote_src: yes
+
+    - name: Move index file
+      copy:
+        remote_src: yes
+        src: /opt/2129_crispy_kitchen/
+        dest: /var/www/html
+#============================= Setup DBserver =============================
+- name: Setup DBserver
+  hosts: db1
+  become: yes
+  tasks:
+    - name: Install MySQL server
+      dnf:
+         name: 
+            - mariadb105-server
+            - python3-pip
+         state: present
+    - name: Install PyMySQL
+      pip:
+         name: pymysql
+         state: forcereinstall
+    - name: Start & Enable maridb service
+      service:
+         name: mariadb
+         state: started
+         enabled: yes
+    #-------------------------Create a new database-------------------------------
+    - name: Create a new database with name 'accounts'
+      mysql_db:
+        name: accounts
+        state: present
+
+    - name: Create database user with name 'admin' 
+      mysql_user:
+        name: admin
+        password: 12345
+        priv: '*.*:ALL'
+        state: present
+  

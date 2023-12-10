@@ -1,0 +1,16 @@
+web1 ansible_host=172.31.34.150    #change the IP address accordingly
+db1 ansible_host=172.31.35.162     #change the IP address accordingly
+
+[websrvgrp]
+web1
+
+[dbsrvgrp]
+db1
+
+[glob:children]
+websrvgrp
+dbsrvgrp
+
+[glob:vars]
+ansible_user=ec2-user                       #change the username if it's run in machine other than Amazon linux
+ansible_ssh_private_key_file=newkey.pem     #change the private key accordingly
